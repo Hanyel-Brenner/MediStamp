@@ -7,7 +7,6 @@ that for the registering to be completed, the doctor must accept the registratio
 Medical certificates must have the name of the responsible doctor, the uf-crm string that identifies him, the data and
 time of the document emission
 */
-import "./DateLib.sol";
 
 contract App{
 
@@ -15,13 +14,23 @@ contract App{
     uint32 nof_registeredDoctors = 0;
     uint32 nof_registeredUsers = 0;
 
+    mapping (address => string) roles;
     mapping (address => Entity) entities;
     mapping (address => Doctor) doctors;
     mapping (address => User) users;
+    mapping (string => bytes32) certificates;
+
+
+    modifier onlyDoctor(){
+        require(roles[msg.sender] == 'doctor');
+        _;
+    }
+
 
     struct Entity{
         bool isRegistered;
         address addr;
+        string name;
     }
 
     struct Doctor{
@@ -36,23 +45,23 @@ contract App{
     struct User{
         bool isRegistered;
         address addr;
+        string name;
         string cpf;
         string email;
     }
 
     struct Certificate{
-        string doctorName;
-        string uf; 
-        string crm;
-        string cpfPaciente;
+        bytes32 uuid;
+        Doctor doctor;
+        User user;
+        Entity hospital;
+        string Description;
         string cid;
-        date;
     }
 
-    function registerEntity(address addr) public{
+    function registerEntity(address addr, string memory name) public{
         require(entities[addr].isRegistered == false);
-        entities[addr].addr = addr;
-        entities[addr].isRegistered = true;
+        entities[addr] = Entity(true,addr,name);
         nof_registeredEntities = nof_registeredEntities + 1;
     } 
 
@@ -90,5 +99,17 @@ contract App{
         users[addr].email = email;
     }
 
+    function getUserInformation(address addr) public view returns (User memory){
+        return users[addr];
+    }
 
+    function GenerateCertificate(address docAddr, address patientAddr, address hospitalAddr, string memory description) public onlyDoctor returns (bytes32){
+        Doctor memory doctor = getDoctorInformation(docAddr);
+        User memory patient = getUserInformation(patientAddr);
+        Entity memory hospital = getEntityInformation(hospitalAddr);
+        bytes32 id = keccak256(abi.encode(doctor, patient, hospital, description));
+        certificates[id] = Certificate(id, doctor,patient, hospital, description, doctor.cid);
+        return id;
+    }
+    
 } 

@@ -25,6 +25,12 @@ let contract = new web3.eth.Contract(contractAbi, contractAddress);
 
 //console.log(contract);
 console.log(contract.defaultAccount);
+
+let userInformation = contract.methods.getUserInformation(process.env.MY_WALLET)
+.call({from : process.env.MY_WALLET});
+console.log(userInformation);
+
+
 }
 
 main();

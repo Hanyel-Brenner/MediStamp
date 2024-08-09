@@ -10,22 +10,22 @@ time of the document emission
 
 contract App{
 
-    uint32 nof_registeredEntities = 0;
-    uint32 nof_registeredDoctors = 0;
-    uint32 nof_registeredUsers = 0;
+    uint64 nof_registeredEntities = 0;
+    uint64 nof_registeredDoctors = 0;
+    uint64 nof_registeredUsers = 0;
+    uint64 certificateCounter = 0;
 
+    /*the roles hashmap is useless for now*/
     mapping (address => string) roles;
     mapping (address => Entity) entities;
     mapping (address => Doctor) doctors;
     mapping (address => User) users;
-    mapping (string => bytes32) certificates;
+    mapping (uint64 => Certificate) certificates;
 
-
-    modifier onlyDoctor(){
+    /*modifier onlyDoctor(){
         require(roles[msg.sender] == 'doctor');
         _;
-    }
-
+    }*/
 
     struct Entity{
         bool isRegistered;
@@ -51,12 +51,11 @@ contract App{
     }
 
     struct Certificate{
-        bytes32 uuid;
+        uint64 id;
         Doctor doctor;
         User user;
         Entity hospital;
         string Description;
-        string cid;
     }
 
     function registerEntity(address addr, string memory name) public{
@@ -103,12 +102,15 @@ contract App{
         return users[addr];
     }
 
-    function GenerateCertificate(address docAddr, address patientAddr, address hospitalAddr, string memory description) public onlyDoctor returns (bytes32){
+    function generateCertificate(address docAddr, address patientAddr, address hospitalAddr, string memory description) public returns (uint64){
+        //TODO verify if there was a request by user to the doctor
+        //TODO verify if the request was accepted by the doctor
         Doctor memory doctor = getDoctorInformation(docAddr);
         User memory patient = getUserInformation(patientAddr);
         Entity memory hospital = getEntityInformation(hospitalAddr);
-        bytes32 id = keccak256(abi.encode(doctor, patient, hospital, description));
-        certificates[id] = Certificate(id, doctor,patient, hospital, description, doctor.cid);
+        //bytes32 id = keccak256(abi.encode(doctor, patient, hospital, description));
+        uint64 id = certificateCounter;
+        certificates[id] = Certificate(id, doctor,patient, hospital, description);
         return id;
     }
     

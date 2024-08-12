@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset = 'utf-8'>
+        <title>verifyProvider</title>
+    </head>
+    <body>
+
+        <script type="module">
+            if(window && window.ethereum) console.log('Metamask or other provider extension is installed on browser');
+            let accountOwner = await window.ethereum.request({
+            method: "eth_requestAccounts",
+            })
+
+            console.log('address currently connected on wallet : ' + accountOwner);
+        </script>
+
+    </body>
+</html>

@@ -7,13 +7,20 @@
     <body>
 
         <script type="module">
-            if(window && window.ethereum) console.log('Metamask or other provider extension is installed on browser');
-            let accountOwner = await window.ethereum.request({
-            method: "eth_requestAccounts",
-            })
-
+            let accountOwner;
+            try{
+                if(window && window.ethereum) console.log('Metamask plugin is installed on browser');
+                 accountOwner = await window.ethereum.request({
+                method: "eth_requestAccounts",
+                })
+            }
+            catch(e){
+                console.log(e.toString());
+                console.log('MetaMask plugin not installed');
+            }
             console.log('address currently connected on wallet : ' + accountOwner);
-        </script>
+
+                </script>
 
     </body>
 </html>

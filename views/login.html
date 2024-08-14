@@ -9,7 +9,9 @@
        <button id = "login-button">Login with MetaMask</button>
 
         <script type="module">
-            
+            let resp = await fetch('http:localhost:3000/utils/generateNonce');
+            let nonce = resp.nonce;
+            console.log(nonce);
         </script>
 
     </body>

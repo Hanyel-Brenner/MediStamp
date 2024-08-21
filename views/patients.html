@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Usuário - Medistamp</title>
+</head>
+<body>
+
+    <h1>Cadastrar Usuário</h1>
+
+    <form id="user-form">
+        <label for="userName">Nome:</label>
+        <input type="text" id="userName" name="userName" required><br><br>
+
+        <label for="cpf">CPF:</label>
+        <input type="text" id="cpf" name="cpf" required><br><br>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br><br>
+
+        <button type="submit">Cadastrar</button>
+    </form>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.7.0/dist/web3.min.js"></script>
+    <script type="module">
+        document.getElementById('user-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const userName = document.getElementById('userName').value;
+            const cpf = document.getElementById('cpf').value;
+            const email = document.getElementById('email').value;
+
+            if (typeof window.ethereum != 'undefined') {
+                const web3 = new Web3(window.ethereum);
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const account = accounts[0];
+
+                    const contractAddress = 'ENDEREÇO_DO_CONTRATO';
+                    const contractABI = [ /* ABI do contrato aqui */ ];
+                    const contract = new web3.eth.Contract(contractABI, contractAddress);
+
+                    await contract.methods.cadastrarUsuario(userName, cpf, email)
+                        .send({ from: account });
+
+                    alert('Usuário cadastrado com sucesso!');
+                } catch (error) {
+                    console.error('Erro ao cadastrar usuário:', error);
+                    alert('Erro ao cadastrar usuário.');
+                }
+            } else {
+                alert('MetaMask não está instalado.');
+            }
+        });
+    </script>
+
+</body>
+</html>

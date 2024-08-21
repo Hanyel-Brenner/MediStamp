@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Médico - Medistamp</title>
+</head>
+<body>
+
+    <h1>Cadastrar Médico</h1>
+
+    <form id="doctor-form">
+        <label for="doctorName">Nome do Médico:</label>
+        <input type="text" id="doctorName" name="doctorName" required><br><br>
+
+        <label for="uf">UF:</label>
+        <input type="text" id="uf" name="uf" required><br><br>
+
+        <label for="crm">CRM:</label>
+        <input type="text" id="crm" name="crm" required><br><br>
+
+        <label for="hospitalAddress">Endereço do Hospital:</label>
+        <input type="text" id="hospitalAddress" name="hospitalAddress" required><br><br>
+
+        <button type="submit">Cadastrar</button>
+    </form>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.7.0/dist/web3.min.js"></script>
+    <script type="module">
+        document.getElementById('doctor-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const doctorName = document.getElementById('doctorName').value;
+            const uf = document.getElementById('uf').value;
+            const crm = document.getElementById('crm').value;
+            const hospitalAddress = document.getElementById('hospitalAddress').value;
+
+            if (typeof window.ethereum !== 'undefined') {
+                const web3 = new Web3(window.ethereum);
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const account = accounts[0];
+
+                    const contractAddress = '0x6437a62f2E0Cf24B04736dD47E8e02741f5C7e37';
+                    const contractABI = [ /* ABI do contrato aqui */ ];
+                    const contract = new web3.eth.Contract(contractABI, contractAddress);
+
+                    await contract.methods.cadastrarMedico(doctorName, uf, crm, hospitalAddress)
+                        .send({ from: account });
+
+                    alert('Médico cadastrado com sucesso!');
+                } catch (error) {
+                    console.error('Erro ao cadastrar médico:', error);
+                    alert('Erro ao cadastrar médico.');
+                }
+            } else {
+                alert('MetaMask não está instalado.');
+            }
+        });
+    </script>
+
+</body>
+</html>

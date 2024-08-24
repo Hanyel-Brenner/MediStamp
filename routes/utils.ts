@@ -1,4 +1,5 @@
 import { Request,Response} from 'express';
+import {web3,contract} from '../src/setup/web3';
 
 const express = require('express');
 const router = express.Router();
@@ -23,6 +24,13 @@ router.get('/verifyProvider', (req:Request, res:Response) => {
         res.send(content);
     });
 });
+
+router.get('/getUserInformation/:address', async (req:Request, res:Response) => {
+    let user = await contract.methods.getUserInformation(req.params.address)
+    .call({from : req.params.address}) 
+    console.log(user);
+    res.send('user is :'+{user}.toString());
+})
 
 export default router;
 

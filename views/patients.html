@@ -38,9 +38,9 @@
                     const account = accounts[0];
 
                     //used API to recover abi and contract address to instantiate web3
-                    const recoveredContractAddress = await fetch('/getContractAddress').then(response => {response.json});
+                    const recoveredContractAddress = await fetch('/getContractAddress').then(response => response.json());
                     console.log(recoveredContractAddress.address);
-                    const recoveredContractAbi = await fetch('/getContractAbi').then(response => {response.json()});
+                    const recoveredContractAbi = await fetch('/getContractAbi').then(response => response.json());
                     //instantiate contract
                     const contract = new web3.eth.Contract(recoveredContractAbi.abi, recoveredContractAddress.address);
 

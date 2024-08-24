@@ -1,13 +1,50 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset = 'utf-8'>
-        <title>MediStamp</title>
-    </head>
-    <body>
-        
-        <script type="module">
-            console.log('working');
-        </script>
-    </body>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medistamp</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="fixed-header">
+        <div class="top-nav">
+            <div class="logo-container">
+                <img src="medical-record.jpg" alt="Medistamp Logo">
+                <div class="logo">Medistamp</div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="/">Início</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <section id="home">
+        <h2>Bem-vindo ao Medistamp</h2>
+        <p>Uma solução inovadora de blockchain para emitir atestados médicos de forma descentralizada.</p>
+        <div class="home-cards">
+            <div class="home-card" onclick="location.href='doctors.html'">
+                <h3>Doutores</h3>
+                <p>Cadastrar doutores.</p>
+            </div>
+            <div class="home-card" onclick="location.href='patients.html'">
+                <h3>Pacientes</h3>
+                <p>Cadastrar pacientes.</p>
+            </div>
+            <div class="home-card" onclick="location.href='hospitals.html'">
+                <h3>Hospitais</h3>
+                <p>Cadastrar hospitais.</p>
+            </div>
+        </div>
+    </section>
+    
+    <footer>
+        <p>&copy; 2024 Medistamp. Todos os direitos reservados.</p>
+    </footer>
+</body>
 </html>

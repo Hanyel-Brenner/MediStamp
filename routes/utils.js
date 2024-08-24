@@ -9,8 +9,8 @@ var crypto = require('crypto');
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: false }));
 router.get('/generateNonce', function (req, res) {
-    var nonce = crypto.randomBytes(32);
-    res.json(nonce);
+    var nonce = crypto.randomBytes(32).toString('hex');
+    res.json({ nonce: nonce });
 });
 router.get('/verifyProvider', function (req, res) {
     fs.readFile(viewsPath + 'verifyProvider.html', 'utf-8', function (err, content) {

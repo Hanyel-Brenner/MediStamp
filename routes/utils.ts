@@ -11,12 +11,12 @@ router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({extended : false}));
 
 router.get('/generateNonce', (req:Request, res:Response) => {
-    const nonce = crypto.randomBytes(32);
-    res.json(nonce);
+    const nonce = crypto.randomBytes(32).toString('hex');
+    res.json({nonce});
 });
 
 router.get('/verifyProvider', (req:Request, res:Response) => {
-    fs.readFile(viewsPath+'verifyProvider.html', 'utf-8', (err,content) => {
+    fs.readFile(viewsPath+'verifyProvider.html', 'utf-8', (err: any,content: any) => {
         if(err){
             res.send('cannot acess page');
         }

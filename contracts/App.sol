@@ -22,6 +22,7 @@ contract App is AccessControl {
 
     struct Entity {
         bool isRegistered;
+        bool isActive;
         string name;
     }
 
@@ -66,9 +67,9 @@ contract App is AccessControl {
     }
 
     function registerEntity(address addr, string memory name) public {
-        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not a hospital");
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not a ADMIN");
         require(!entities[addr].isRegistered, "Entity already registered");
-        entities[addr] = Entity(true, name);
+        entities[addr] = Entity(true, true, name);
         _grantRole(HOSPITAL_ROLE, addr);
     }
 

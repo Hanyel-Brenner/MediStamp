@@ -29,8 +29,10 @@ server.get('/', (req:Request, res: Response) => {
 });
 
 server.get('/getContractAbi', (req:Request, res:Response) => {
-    let abi = process.env.CONTRACT_ABI;
-    res.send(abi);
+    let abiJson = process.env.CONTRACT_ABI;
+    let abi = JSON.parse(abiJson as string);
+    console.log(abi);
+    res.json({abi});
 });
 
 server.get('/getContractAddress', (req:Request, res:Response) => {
@@ -38,35 +40,22 @@ server.get('/getContractAddress', (req:Request, res:Response) => {
     res.json({address});
 });
 
-server.post('/registerPatient', async (req:Request, res:Response) => {
-    const name = req.body.userName;
-    const cpf = req.body.cpf;
-    const email = req.body.email;
+server.post('/findRequest', async (req : Request,res : Response) => {
+    const userAddr = req.body.userAddress;
+    const docAddr = req.body.doctorAddress;
+    const hospAddr = req.body.hospitalAddress;
+    const desc = req.body.description;
+    const sender = req.body.sender;
+    let result = await contract.methods.findRequest(userAddr, docAddr, hospAddr, desc)
+    .send({from : sender});
 
-    //now we call registerUser from smart contract with the provided arguments
-    await contract.methods.registerUser(process.env.MY_WALLET, cpf, email)
-    .send({from : process.env.MY_WALLET});
-
-    const userAdded = await contract.methods.getUserInformation(process.env.MY_WALLET)
-    .call({from : process.env.MY_WALLET});
-
-    res.send({userAdded});
+    if(result) {
+        console.log(result);
+        res.send();
+    }
+    else res.send('ERROR : could not find request'); 
 });
 
-server.post('/registerDoctor', (req:Request, res:Response) => {
-    const doctorName = req.body.doctorName;
-    const uf = req.body.uf;
-    const crm = req.body.crm;
-    const hospitalAddress = req.body.hospitalAddress;
-
-    res.send(doctorName+uf+crm+hospitalAddress);
-});
-
-server.post('/registerEntity', (req:Request, res:Response) => {
-    const hospitalName = req.body.hospitalName;
-
-    res.send(hospitalName);
-});
 
 /*async function auth(req:Request, res:Response, next:NextFunction){
     console.log(req.body);

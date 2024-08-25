@@ -12,6 +12,10 @@
     <h1>Cadastrar Médico</h1>
 
     <form id="doctor-form">
+
+        <label for="doctorAddress">Endereco do Medico:</label>
+        <input type="text" id="doctorAddress" name="doctorAddress" required><br><br>
+
         <label for="doctorName">Nome do Médico:</label>
         <input type="text" id="doctorName" name="doctorName" required><br><br>
 
@@ -20,6 +24,9 @@
 
         <label for="crm">CRM:</label>
         <input type="text" id="crm" name="crm" required><br><br>
+
+        <label for="especialidade">Especialidade</label>
+        <input type="text" id="especialidade" name="especialidade" required><br><br>
 
         <label for="hospitalAddress">Endereço do Hospital:</label>
         <input type="text" id="hospitalAddress" name="hospitalAddress" required><br><br>
@@ -32,9 +39,11 @@
         document.getElementById('doctor-form').addEventListener('submit', async function(event) {
             event.preventDefault();
 
+            const doctorAddress = document.getElementById('doctorAddress').value;
             const doctorName = document.getElementById('doctorName').value;
             const uf = document.getElementById('uf').value;
             const crm = document.getElementById('crm').value;
+            const especialidade = document.getElementById('especialidade').value;
             const hospitalAddress = document.getElementById('hospitalAddress').value;
 
             if (typeof window.ethereum !== 'undefined') {
@@ -43,12 +52,15 @@
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     const account = accounts[0];
 
-                    const contractAddress = '0x6437a62f2E0Cf24B04736dD47E8e02741f5C7e37';
-                    const contractABI = [ /* ABI do contrato aqui */ ];
-                    const contract = new web3.eth.Contract(contractABI, contractAddress);
+                    //used API to recover abi and contract address to instantiate web3
+                    const recoveredContractAddress = await fetch('/getContractAddress').then(response => response.json());
+                    console.log(recoveredContractAddress.address);
+                    const recoveredContractAbi = await fetch('/getContractAbi').then(response => response.json());
+                    //instantiate contract
+                    const contract = new web3.eth.Contract(recoveredContractAbi.abi, recoveredContractAddress.address);
 
-                    await contract.methods.cadastrarMedico(doctorName, uf, crm, hospitalAddress)
-                        .send({ from: account });
+                    await contract.methods.registerDoctor(doctorAddress, hospitalAddress, uf, especialidade, crm)
+                        .send({ from: hospitalAddress });
 
                     alert('Médico cadastrado com sucesso!');
                 } catch (error) {

@@ -1,6 +1,7 @@
 import { Request,Response} from 'express';
 import {web3,contract} from '../src/setup/web3';
 
+require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 const fs = require('fs');
@@ -27,10 +28,30 @@ router.get('/verifyProvider', (req:Request, res:Response) => {
 
 router.get('/getUserInformation/:address', async (req:Request, res:Response) => {
     let user = await contract.methods.getUserInformation(req.params.address)
-    .call({from : req.params.address}) 
+    .call({from : process.env.MY_WALLET}) 
     console.log(user);
-    res.send('user is :'+{user}.toString());
+    res.send();
 })
+
+router.get('/getDoctorInformation/:address', async (req:Request,res:Response) => {
+    let doctor = await contract.methods.getDoctorInformation(req.params.address)
+    .call({from : process.env.MY_WALLET});
+    console.log(doctor);
+    res.send();
+});
+
+router.get('/getHospitalInformation/:address', async (req:Request,res:Response) => {
+    let hospital = await contract.methods.getEntityInformation(req.params.address)
+    .call({from : process.env.MY_WALLET});
+    console.log(hospital);
+    res.send();
+});
+
+router.get('/verifyRole/:role/:address', async (req:Request, res:Response) => {
+    let result = await contract.methods.returnRole(req.params.role,req.params.address)
+    .call({from : process.env.MY_WALLET})
+    console.log(result);
+});
 
 export default router;
 

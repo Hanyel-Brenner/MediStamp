@@ -37,6 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var web3_1 = require("../src/setup/web3");
+require('dotenv').config();
 var express = require('express');
 var router = express.Router();
 var fs = require('fs');
@@ -62,11 +63,52 @@ router.get('/getUserInformation/:address', function (req, res) { return __awaite
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0: return [4 /*yield*/, web3_1.contract.methods.getUserInformation(req.params.address)
-                    .call({ from: req.params.address })];
+                    .call({ from: process.env.MY_WALLET })];
             case 1:
                 user = _a.sent();
                 console.log(user);
-                res.send('user is :' + { user: user }.toString());
+                res.send();
+                return [2 /*return*/];
+        }
+    });
+}); });
+router.get('/getDoctorInformation/:address', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var doctor;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, web3_1.contract.methods.getDoctorInformation(req.params.address)
+                    .call({ from: process.env.MY_WALLET })];
+            case 1:
+                doctor = _a.sent();
+                console.log(doctor);
+                res.send();
+                return [2 /*return*/];
+        }
+    });
+}); });
+router.get('/getHospitalInformation/:address', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var hospital;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, web3_1.contract.methods.getEntityInformation(req.params.address)
+                    .call({ from: process.env.MY_WALLET })];
+            case 1:
+                hospital = _a.sent();
+                console.log(hospital);
+                res.send();
+                return [2 /*return*/];
+        }
+    });
+}); });
+router.get('/verifyRole/:role/:address', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var result;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, web3_1.contract.methods.returnRole(req.params.role, req.params.address)
+                    .call({ from: process.env.MY_WALLET })];
+            case 1:
+                result = _a.sent();
+                console.log(result);
                 return [2 /*return*/];
         }
     });

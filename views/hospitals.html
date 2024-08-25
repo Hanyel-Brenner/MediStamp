@@ -11,6 +11,10 @@
     <h1>Cadastrar Hospital</h1>
 
     <form id="hospital-form">
+
+        <label for="hospitalAddress">Endereco do Hospital:</label>
+        <input type="text" id="hospitalAddress" name="hospitalAddress" required><br><br>
+
         <label for="hospitalName">Nome do Hospital:</label>
         <input type="text" id="hospitalName" name="hospitalName" required><br><br>
 
@@ -22,29 +26,25 @@
         document.getElementById('hospital-form').addEventListener('submit', async function(event) {
             event.preventDefault();
 
+            const hospitalAddress = document.getElementById('hospitalAddress').value;
             const hospitalName = document.getElementById('hospitalName').value;
-            if (typeof window.ethereum !== 'undefined' || typeof window.web3 !== 'undefined') {
-                // Solicita a conexão com MetaMask
+
+            if (typeof window.ethereum != 'undefined') {
+                const web3 = new Web3(window.ethereum);
                 try {
-                    const web3 = new Web3(window.ethereum || window.web3.currentProvider);
-                    
-                    // Solicita contas ao MetaMask
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     const account = accounts[0];
 
-                    // Verifica se a conta está conectada
-                    if (!account) {
-                        alert('Por favor, conecte sua carteira MetaMask.');
-                        return;
-                    }
-
-                    const contractAddress = '0x6437a62f2E0Cf24B04736dD47E8e02741f5C7e37'; // Substitua pelo endereço do contrato
-                    const contractABI = [ /* ABI do contrato aqui */ ]; // Substitua pela ABI do contrato
-                    const contract = new web3.eth.Contract(contractABI, contractAddress);
-
-                    // Chama o método do contrato
-                    await contract.methods.registerEntity(account, hospitalName)
+                    //used API to recover abi and contract address to instantiate web3
+                    const recoveredContractAddress = await fetch('/getContractAddress').then(response => response.json());
+                    const recoveredContractAbi = await fetch('/getContractAbi').then(response => response.json());
+                    //instantiate contract
+                    const contract = new web3.eth.Contract(recoveredContractAbi.abi, recoveredContractAddress.address);
+                    console.log(account);
+                    const result = await contract.methods.registerEntity(hospitalAddress, hospitalName)
                         .send({ from: account });
+
+                    console.log(result);
 
                     alert('Hospital cadastrado com sucesso!');
                 } catch (error) {

@@ -18,8 +18,8 @@ describe("App Contract", function () {
 
   describe("Entity (Hospital) Management", function () {
     it("Should register an entity and grant HOSPITAL_ROLE", async function () {
-      await app.connect(owner).grantRole(await app.HOSPITAL_ROLE(), hospital.address);
-      await app.connect(hospital).registerEntity(hospital.address, "Hospital A");
+      await app.connect(owner).grantRole(await app.ADMIN_ROLE(), owner.address);
+      await app.connect(owner).registerEntity(hospital.address, "Hospital A");
   
       const entity = await app.getEntityInformation(hospital.address);
       expect(entity.isRegistered).to.be.true;
@@ -30,12 +30,12 @@ describe("App Contract", function () {
     it("Should not allow non-hospital to register an entity", async function () {
       await expect(
         app.connect(user).registerEntity(hospital.address, "Hospital A")
-      ).to.be.revertedWith("Caller is not a hospital");
+      ).to.be.revertedWith("Caller is not a ADMIN");
     });
 
     it("Should remove an entity and associated doctors", async function () {
-      await app.connect(owner).grantRole(await app.HOSPITAL_ROLE(), hospital.address);
-      await app.connect(hospital).registerEntity(hospital.address, "Hospital A");
+      await app.connect(owner).grantRole(await app.ADMIN_ROLE(), owner.address);
+      await app.connect(owner).registerEntity(hospital.address, "Hospital A");
       await app.connect(hospital).registerDoctor(doctor.address, hospital.address, "UF A", "Cardiology", "CRM001");
 
       await app.connect(owner).removeEntity(hospital.address);
@@ -50,8 +50,8 @@ describe("App Contract", function () {
 
   describe("Doctor Management", function () {
     it("Should register a doctor", async function () {
-      await app.connect(owner).grantRole(await app.HOSPITAL_ROLE(), hospital.address);
-      await app.connect(hospital).registerEntity(hospital.address, "Hospital A");
+      await app.connect(owner).grantRole(await app.ADMIN_ROLE(), owner.address);
+      await app.connect(owner).registerEntity(hospital.address, "Hospital A");
       await app.connect(hospital).registerDoctor(doctor.address, hospital.address, "UF A", "Cardiology", "CRM001");
 
       const doctorInfo = await app.getDoctorInformation(doctor.address);
@@ -60,8 +60,8 @@ describe("App Contract", function () {
     });
 
     it("Should remove a doctor", async function () {
-      await app.connect(owner).grantRole(await app.HOSPITAL_ROLE(), hospital.address);
-      await app.connect(hospital).registerEntity(hospital.address, "Hospital A");
+      await app.connect(owner).grantRole(await app.ADMIN_ROLE(), owner.address);
+      await app.connect(owner).registerEntity(hospital.address, "Hospital A");
       await app.connect(hospital).registerDoctor(doctor.address, hospital.address, "UF A", "Cardiology", "CRM001");
 
       await app.connect(hospital).removeDoctor(doctor.address);
@@ -93,8 +93,8 @@ describe("App Contract", function () {
   describe("Certificate Request and Generation", function () {
     it("Should allow a user to request a certificate", async function () {
         await app.connect(owner).registerUser(user.address, "Charles", "12345678900", "charles@example.com");
-        await app.connect(owner).grantRole(await app.HOSPITAL_ROLE(), hospital.address);
-        await app.connect(hospital).registerEntity(hospital.address, "Hospital A");
+        await app.connect(owner).grantRole(await app.ADMIN_ROLE(), owner.address);
+        await app.connect(owner).registerEntity(hospital.address, "Hospital A");
         await app.connect(hospital).registerDoctor(doctor.address, hospital.address, "UF A", "Cardiology", "CRM001");
 
         await expect(app.connect(user).requestCertificate(doctor.address, "Medical condition"))
@@ -102,7 +102,7 @@ describe("App Contract", function () {
             .withArgs(anyValue);
 
         const requestId = Number(await app.requestCounter()) - 1;
-        //const requestId = (await app.requestCounter()) - 1n; mantendo o retorno (BigInt) e subtraindo 1
+        //const requestId = (await app.requestCounter()) - 1n; //mantendo o retorno (BigInt) e subtraindo 1
 
         const request = await app.requests(requestId);
         expect(request.userAddr).to.equal(user.address);
@@ -113,8 +113,8 @@ describe("App Contract", function () {
 
     it("Should allow a doctor to respond to a certificate request", async function () {
         await app.connect(owner).registerUser(user.address, "Charles", "12345678900", "charles@example.com");
-        await app.connect(owner).grantRole(await app.HOSPITAL_ROLE(), hospital.address);
-        await app.connect(hospital).registerEntity(hospital.address, "Hospital A");
+        await app.connect(owner).grantRole(await app.ADMIN_ROLE(), owner.address);
+        await app.connect(owner).registerEntity(hospital.address, "Hospital A");
         await app.connect(hospital).registerDoctor(doctor.address, hospital.address, "UF A", "Cardiology", "CRM001");
 
         await expect(app.connect(user).requestCertificate(doctor.address, "Medical condition"))

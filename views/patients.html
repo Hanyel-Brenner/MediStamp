@@ -44,8 +44,9 @@
                     //instantiate contract
                     const contract = new web3.eth.Contract(recoveredContractAbi.abi, recoveredContractAddress.address);
 
-                    await contract.methods.registerUser(account, cpf, email)
+                    let result = await contract.methods.registerUser(account, cpf, email)
                         .send({ from: account });
+
 
                     alert('Usuário cadastrado com sucesso!');
                 } catch (error) {

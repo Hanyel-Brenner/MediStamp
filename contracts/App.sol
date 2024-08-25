@@ -14,7 +14,7 @@ contract App is AccessControl {
     bytes32 public constant HOSPITAL_ROLE = keccak256("HOSPITAL_ROLE");
     bytes32 public constant DOCTOR_ROLE = keccak256("DOCTOR_ROLE");
     bytes32 public constant USER_ROLE = keccak256("USER_ROLE");
-
+    
     mapping(address => Entity) public entities;
     mapping(address => Doctor) public doctors;
     mapping(address => User) public users;
@@ -79,7 +79,8 @@ contract App is AccessControl {
     }
 
     function registerEntity(address addr, string memory name) public {
-        require(hasRole(HOSPITAL_ROLE, msg.sender), "Caller is not a hospital");
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not admin");
+        require(!hasRole(HOSPITAL_ROLE, addr));
         require(!entities[addr].isRegistered, "Entity already registered");
         entities[addr] = Entity(true, addr, name);
         nof_registeredEntities = _incrementCounter(nof_registeredEntities);
@@ -147,9 +148,9 @@ contract App is AccessControl {
         }
     }
 
-    function registerUser(address addr, string memory cpf, string memory email) public {
+    function registerUser(address addr, string memory name, string memory cpf, string memory email) public {
         require(!users[addr].isRegistered, "User already registered");
-        users[addr] = User(true, addr, "", cpf, email);
+        users[addr] = User(true, addr, name, cpf, email);
         nof_registeredUsers = _incrementCounter(nof_registeredUsers);
         _grantRole(USER_ROLE, addr);
     }
@@ -221,5 +222,10 @@ contract App is AccessControl {
             }
         }
         revert("No matching request found");
+    }
+    function returnRole(bytes memory role, address ad) public view returns (bool){
+        bytes32 hRole = keccak256(role);
+        if(hasRole(hRole,ad)) return true;
+        else return false;
     }
 }

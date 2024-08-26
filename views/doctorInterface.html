@@ -24,27 +24,32 @@
         </div>
     </header>
 
-    <main> <!-- Added a main tag to wrap the section -->
-        <section id="home">
-            <h2>Bem-vindo ao Medistamp</h2>
-            <p>Uma solução inovadora de blockchain para emitir atestados médicos de forma descentralizada.</p>
-            <div class="home-cards">
-                <div class="home-card" onclick="location.href='doctorInterface.html'">
-                    <h3>Médicos</h3>
-                </div>
-                <div class="home-card" onclick="location.href='userInterface.html'">
-                    <h3>Pacientes</h3>
-                </div>
-                <div class="home-card" onclick="location.href='hospitalInterface.html'">
-                    <h3>Hospitais</h3>
-                </div>
+    <main>
+    <section id="home">
+        <h2>Bem-vindo ao Medistamp</h2>
+        <p>Uma solução inovadora de blockchain para emitir atestados médicos de forma descentralizada.</p>
+        <div class="home-cards">
+            <div class="home-card" onclick="location.href='doctors.html'">
+                <h3>Doutores</h3>
+                <p>Cadastrar médicos.</p>
             </div>
-        </section>
-    </main>
+            
+            <div class="home-card" onclick="location.href='findRequest.html'">
+                <h3>Requisição</h3>
+                <p>Procurar Requisição</p>
+            </div>
+            <div class="home-card" onclick="location.href='generateCertificate.html'">
+                <h3>Certificado</h3>
+                <p>Gerar certificado</p>
+            </div>
+        
+        </div>
+    </section>
 
+    </main>
+        
     <footer>
         <p>&copy; 2024 Medistamp. Todos os direitos reservados.</p>
     </footer>
 </body>
 </html>
-

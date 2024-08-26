@@ -102,9 +102,9 @@ describe("App Contract", function () {
             .withArgs(anyValue);
 
         const requestId = Number(await app.requestCounter()) - 1;
-        //const requestId = (await app.requestCounter()) - 1n; //mantendo o retorno (BigInt) e subtraindo 1
+        const requests = await app.getRequests(doctor.address);
 
-        const request = await app.requests(requestId);
+        const request = requests[requestId];
         expect(request.userAddr).to.equal(user.address);
         expect(request.doctorAddr).to.equal(doctor.address);
         expect(request.description).to.equal("Medical condition");
@@ -126,7 +126,7 @@ describe("App Contract", function () {
 
         await app.connect(doctor).respondToCertificateRequest(requestId, true);
 
-        await expect(app.connect(doctor).generateCertificate(doctor.address, user.address, hospital.address, "Medical condition"))
+        await expect(app.connect(doctor).generateCertificate(requestId, "Medical condition"))
             .to.emit(app, "CertificateGenerated")
             .withArgs(anyValue);
 

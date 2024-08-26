@@ -39,7 +39,12 @@
         <p id = "pending"></p>
         <label> Bloco :  </label>
         <p id="block"></p>
+
+        <button id="approve-req">Approve request</button>
+
     </div>
+
+    
 
     <div id="no-result" style="display : none">
         <p>No results found</p>
@@ -49,7 +54,7 @@
     <script type="module">
         document.getElementById('request-form').addEventListener('submit', async function(event) {
             event.preventDefault();
-
+            
             const resultDiv = document.getElementById('result');
             const docAddr = document.getElementById('doctorAddress').value;
             const id = document.getElementById('id');
@@ -59,7 +64,7 @@
             const approved = document.getElementById('approved');
             const pending = document.getElementById('pending');
             const block = document.getElementById('block');
-
+            //const button = document.getElementById('approve-req');
 
             if (typeof window.ethereum != 'undefined') {
                 const web3 = new Web3(window.ethereum);
@@ -88,7 +93,9 @@
                         approved.innerText = result[0].isApproved;
                         pending.innerText = result[0].isPending;
                         block.innerText= result[0].blockNumber;
+
                     }
+                    else {alert('Nenhuma requisição encontrada')}
 
                 } catch (error) {
                     console.error('Erro ao procurar requisição', error);
@@ -98,6 +105,42 @@
                 alert('MetaMask não está instalado.');
             }
         });
+
+        document.getElementById('approve-req').addEventListener('click', async function(event){
+        event.preventDefault();
+
+            const id = document.getElementById('id');
+
+            
+            if (typeof window.ethereum != 'undefined') {
+                const web3 = new Web3(window.ethereum);
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const account = accounts[0];
+
+                    //used API to recover abi and contract address to instantiate web3
+                    const recoveredContractAddress = await fetch('/getContractAddress').then(response => response.json());
+                    console.log(recoveredContractAddress.address);
+                    const recoveredContractAbi = await fetch('/getContractAbi').then(response => response.json());
+                    //instantiate contract
+                    const contract = new web3.eth.Contract(recoveredContractAbi.abi, recoveredContractAddress.address);
+
+                    let approved = await contract.methods.respondToCertificateRequest(id.value, true)
+                        .send({from : account});
+                    console.log(approved);
+
+                    if(approved) alert('Requisição aprovada');
+                    else {alert('Falha ao aprovar requisição')}
+
+                } catch (error) {
+                    console.error('Erro ao aprovar requisição', error);
+                    alert('Erro ao aprovar requisição.');
+                }
+            } else {
+                alert('MetaMask não está instalado.');
+            }
+            
+        }
     </script>
 
 </body>

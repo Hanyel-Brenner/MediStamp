@@ -43,9 +43,9 @@
                     //instantiate contract
                     const contract = new web3.eth.Contract(recoveredContractAbi.abi, recoveredContractAddress.address);
 
-                    let approved = await contract.methods.respondToCertificateRequest(id, true)
+                    /*let approved = await contract.methods.respondToCertificateRequest(id, true)
                         .send({from : account});
-
+                    */
                     let result = await contract.methods.generateCertificate(id, description)
                         .send({ from: account });
                 

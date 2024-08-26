@@ -3,26 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Procurar requisição - Medistamp</title>
+    <title>Gerar certificado - Medistamp</title>
 </head>
 <body>
 
-    <h1>Procurar Requisição</h1>
+    <h1>Gerar certificado</h1>
 
-    <form id="request-form" method="post" action="/findRequest">
+    <form id="certificate-form">
 
-        <label for="doctorAddress">Endereço do médico:</label>
-        <input type="text" id="doctorAddress" name="doctorAddress" required><br><br>
+        <label for="id">ID da requisição de certificado:</label>
+        <input type="text" id="id" name="id" required><br><br>
 
-        <button type="submit">Enviar</button>
+        <label for="description">Descrição:</label>
+        <input type="text" id="description" name="description" required><br><br>
+
+        <button type="submit">Generate</button>
     </form>
 
     <script src="https://cdn.jsdelivr.net/npm/web3@1.7.0/dist/web3.min.js"></script>
     <script type="module">
-        document.getElementById('request-form').addEventListener('submit', async function(event) {
+        document.getElementById('certificate-form').addEventListener('submit', async function(event) {
             event.preventDefault();
 
-            const docAddr = document.getElementById('doctorAddress').value;
+            const id = document.getElementById('id').value;
+            const description = document.getElementById('description').value;
+
 
             if (typeof window.ethereum != 'undefined') {
                 const web3 = new Web3(window.ethereum);
@@ -32,24 +37,26 @@
 
                     //used API to recover abi and contract address to instantiate web3
                     const recoveredContractAddress = await fetch('/getContractAddress').then(response => response.json());
-                    console.log(recoveredContractAddress.address);
+                    //console.log(recoveredContractAddress.address);
                     const recoveredContractAbi = await fetch('/getContractAbi').then(response => response.json());
                     //instantiate contract
                     const contract = new web3.eth.Contract(recoveredContractAbi.abi, recoveredContractAddress.address);
 
-                    let result = await contract.methods.findRequest(docAddr)
-                        .call({ from: account });
-                    console.log(result);
-
-                } catch (error) {
-                    console.error('Erro ao procurar requisição', error);
-                    alert('Erro ao procurar requisição.');
+                
+                    let result = await contract.methods.generateCertificate(id)
+                        .send({ from: account });
+                
+                }
+                catch (error) {
+                    console.error('Erro ao gerar certificado', error);
+                    alert('Erro ao gerar certificado.');
                 }
             } else {
                 alert('MetaMask não está instalado.');
             }
         });
     </script>
+
 
 </body>
 </html>

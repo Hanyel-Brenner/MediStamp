@@ -47,6 +47,13 @@ router.get('/getHospitalInformation/:address', async (req:Request,res:Response) 
     res.send();
 });
 
+router.get('/getRequestsToDoctor/:address', async (req:Request,res:Response) => {
+    let requests = await contract.methods.findRequest(req.params.address)
+    .call({from : req.params.address});
+    console.log(requests);
+    res.send();
+});
+
 router.get('/verifyRole/:role/:address', async (req:Request, res:Response) => {
     let result = await contract.methods.returnRole(req.params.role,req.params.address)
     .call({from : process.env.MY_WALLET})

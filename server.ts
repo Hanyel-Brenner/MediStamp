@@ -46,15 +46,19 @@ server.post('/findRequest', async (req : Request,res : Response) => {
     const hospAddr = req.body.hospitalAddress;
     const desc = req.body.description;
     const sender = req.body.sender;
-    let result = await contract.methods.findRequest(userAddr, docAddr, hospAddr, desc)
+    /*let result = await contract.methods.findRequest(userAddr, docAddr, hospAddr, desc)
     .send({from : sender});
 
     if(result) {
         console.log(result);
         res.send();
     }
-    else res.send('ERROR : could not find request'); 
+    else res.send('ERROR : could not find request'); */
+    console.log(sender);
+    res.send();
 });
+
+
 
 
 /*async function auth(req:Request, res:Response, next:NextFunction){

@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastrar Usuário - Medistamp</title>
-    <link rel="stylesheet" href="styles1.css">
 </head>
 <body>
 
@@ -45,7 +44,7 @@
                     //instantiate contract
                     const contract = new web3.eth.Contract(recoveredContractAbi.abi, recoveredContractAddress.address);
 
-                    let result = await contract.methods.registerUser(account, cpf, email)
+                    let result = await contract.methods.registerUser(account, userName, cpf, email)
                         .send({ from: account });
 
 

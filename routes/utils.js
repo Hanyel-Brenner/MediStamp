@@ -100,6 +100,20 @@ router.get('/getHospitalInformation/:address', function (req, res) { return __aw
         }
     });
 }); });
+router.get('/getRequestsToDoctor/:address', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var requests;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, web3_1.contract.methods.findRequest(req.params.address)
+                    .call({ from: req.params.address })];
+            case 1:
+                requests = _a.sent();
+                console.log(requests);
+                res.send();
+                return [2 /*return*/];
+        }
+    });
+}); });
 router.get('/verifyRole/:role/:address', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var result;
     return __generator(this, function (_a) {

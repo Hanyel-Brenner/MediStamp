@@ -16,13 +16,12 @@ contract App is AccessControl {
     mapping(address => Doctor) public doctors;
     mapping(address => User) public users;
     mapping(uint64 => Certificate) public certificates;
-    mapping(uint64 => CertificateRequest) public requests;
+    mapping(address => CertificateRequest[]) public requests;  //the address here is from the doctor, so when we search for it with the address, all requests related to him are recovered
     address[] public doctorAddresses;
     address[] public userAddresses;
 
     struct Entity {
         bool isRegistered;
-        bool isActive;
         string name;
     }
 
@@ -64,12 +63,14 @@ contract App is AccessControl {
     constructor() {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(ADMIN_ROLE, msg.sender);
+        requestCounter = 0;
+        certificateCounter = 0;
     }
 
     function registerEntity(address addr, string memory name) public {
-        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not a ADMIN");
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not a hospital");
         require(!entities[addr].isRegistered, "Entity already registered");
-        entities[addr] = Entity(true, true, name);
+        entities[addr] = Entity(true, name);
         _grantRole(HOSPITAL_ROLE, addr);
     }
 
@@ -137,28 +138,6 @@ contract App is AccessControl {
         require(doctors[doctorAddr].isRegistered, "Doctor not registered");
 
         delete doctors[doctorAddr];
-
-        _removeDoctorFromAddresses(doctorAddr);
-    }
-
-    function _removeDoctorFromAddresses(address doctorAddr) internal {
-        uint256 length = doctorAddresses.length;
-        for (uint256 i = 0; i < length; i++) {
-            if (doctorAddresses[i] == doctorAddr) {
-                doctorAddresses[i] = doctorAddresses[length - 1];
-                doctorAddresses.pop();
-                break;
-            }
-        }
-    }
-
-    function setDoctorActiveStatus(address doctorAddr, bool isActive) public {
-        require(hasRole(HOSPITAL_ROLE, msg.sender) || hasRole(ADMIN_ROLE, msg.sender), "Not authorized");
-        require(doctors[doctorAddr].isRegistered, "Doctor not registered");
-        
-        doctors[doctorAddr].isActive = isActive;
-
-        emit DoctorStatusChanged(doctorAddr, isActive);
     }
 
     function getDoctorInformation(address doctorAddr) public view returns (Doctor memory) {
@@ -207,7 +186,7 @@ contract App is AccessControl {
 
         uint64 id = requestCounter;
         requestCounter++;
-        requests[id] = CertificateRequest({
+        requests[doctorAddr].push(CertificateRequest({
             id: id,
             userAddr: msg.sender,
             doctorAddr: doctorAddr,
@@ -216,35 +195,30 @@ contract App is AccessControl {
             isApproved: false,
             isPending: true,
             blockNumber: block.number
-        });
+        }));
         emit CertificateRequested(id);
     }
 
     function respondToCertificateRequest(uint64 requestId, bool approve) public {
-        CertificateRequest storage request = requests[requestId];
+
+        CertificateRequest storage request = requests[msg.sender][requestId];
         require(request.isPending, "Request is not pending");
         require(request.doctorAddr == msg.sender, "Only the assigned doctor can respond");
         request.isApproved = approve;
         request.isPending = false;
+
     }
 
-    function generateCertificate(
-        address docAddr,
-        address patientAddr,
-        address hospitalAddr,
-        string memory description
-    ) public {
-        require(hasRole(DOCTOR_ROLE, docAddr), "Caller is not a doctor");
-        require(doctors[docAddr].isActive, "Doctor is not active");
-        require(doctors[docAddr].hospital == hospitalAddr, "Doctor does not belong to this hospital");
+    function generateCertificate(uint64 certificateId, string memory description) public {
+        require(hasRole(DOCTOR_ROLE, msg.sender), "Caller is not a doctor");
 
-        uint64 requestId = findRequest(patientAddr, docAddr, hospitalAddr, description);
-        require(requests[requestId].isApproved, "Request has not been approved");
+        CertificateRequest[] memory request = findRequest(msg.sender);
+        require(request[certificateId].isApproved, "Request has not been approved");
 
-        Doctor memory doctor = getDoctorInformation(docAddr);
-        User memory patient = getUserInformation(patientAddr);
-        Entity memory hospital = getEntityInformation(hospitalAddr);
-
+        Doctor memory doctor = getDoctorInformation(request[certificateId].doctorAddr);
+        User memory patient = getUserInformation(request[certificateId].userAddr);
+        Entity memory hospital = getEntityInformation(request[certificateId].hospitalAddr);
+    
         uint64 id = certificateCounter;
         certificateCounter++;
         certificates[id] = Certificate(id, doctor, patient, hospital, description);
@@ -252,25 +226,11 @@ contract App is AccessControl {
         emit CertificateGenerated(id);
     }
 
-    function findRequest(
-        address userAddr,
-        address doctorAddr,
-        address hospitalAddr,
-        string memory description
-    ) internal view returns (uint64) {
-        for (uint64 i = 0; i < requestCounter; i++) {
-            if (
-                requests[i].userAddr == userAddr &&
-                requests[i].doctorAddr == doctorAddr &&
-                requests[i].hospitalAddr == hospitalAddr &&
-                keccak256(abi.encodePacked(requests[i].description)) ==
-                keccak256(abi.encodePacked(description)) &&
-                requests[i].isApproved
-            ) {
-                return i;
-            }
-        }
-        revert("No matching request found");
+    function findRequest(address docAddr) public view returns (CertificateRequest[] memory) {
+        require(hasRole(DOCTOR_ROLE, msg.sender), "message sender must be Doctor");
+        require(docAddr == msg.sender);
+        CertificateRequest[] storage request = requests[msg.sender];   
+        return request;
     }
 
     function getDoctorAddresses() public view returns (address[] memory) {

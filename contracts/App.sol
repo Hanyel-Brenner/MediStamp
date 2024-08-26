@@ -17,8 +17,10 @@ contract App is AccessControl {
     mapping(address => User) public users;
     mapping(uint64 => Certificate) public certificates;
     mapping(address => CertificateRequest[]) public requests;  //the address here is from the doctor, so when we search for it with the address, all requests related to him are recovered
+    mapping(address => Certificate[]) public certificatesByUser;
     address[] public doctorAddresses;
     address[] public userAddresses;
+
 
     struct Entity {
         bool isRegistered;
@@ -54,7 +56,6 @@ contract App is AccessControl {
         address userAddr;
         address doctorAddr;
         address hospitalAddr;
-        string description;
         bool isApproved;
         bool isPending;
         uint256 blockNumber;
@@ -74,44 +75,9 @@ contract App is AccessControl {
         _grantRole(HOSPITAL_ROLE, addr);
     }
 
-    function removeEntity(address entityAddr) public {
-        require(hasRole(ADMIN_ROLE, msg.sender), "Only admin can remove an entity");
-        require(entities[entityAddr].isRegistered, "Entity not registered");
-
-        _removeDoctorsAssociatedWithEntity(entityAddr);
-
-        delete entities[entityAddr];
-    }
-
-    event DoctorRemoved(address doctorAddr);
-    event DoctorAddressAdded(address doctorAddr);
-    event DoctorAddressRemoved(address doctorAddr);
-
-    function _removeDoctorsAssociatedWithEntity(address entityAddr) internal {
-        uint256 length = doctorAddresses.length;
-        uint256 i = 0;
-
-        while (i < length) {
-            address doctorAddr = doctorAddresses[i];
-            if (doctors[doctorAddr].hospital == entityAddr) {
-                removeDoctor(doctorAddr);
-                emit DoctorRemoved(doctorAddr);
-                if (length > 1) {
-                    doctorAddresses[i] = doctorAddresses[length - 1];
-                }
-                length--;
-                emit DoctorAddressRemoved(doctorAddr);
-            } else {
-                i++;
-            }
-        }
-    }
-
     function getEntityInformation(address addr) public view returns (Entity memory) {
         return entities[addr];
     }
-
-    event DoctorStatusChanged(address indexed doctorAddr, bool isActive);
 
     function registerDoctor(
         address doctorAddr,
@@ -125,19 +91,7 @@ contract App is AccessControl {
         require(entities[entityAddr].isRegistered, "Entity not registered");
         doctors[doctorAddr] = Doctor(true, true, uf, crm, especialidade, entityAddr);
         doctorAddresses.push(doctorAddr);
-        emit DoctorAddressAdded(doctorAddr);
         _grantRole(DOCTOR_ROLE, doctorAddr);
-    }
-
-    function removeDoctor(address doctorAddr) public {
-        require(hasRole(ADMIN_ROLE, msg.sender) || (hasRole(HOSPITAL_ROLE, msg.sender)), "Not authorized");
-        require(
-            hasRole(HOSPITAL_ROLE, msg.sender) && doctors[doctorAddr].hospital == msg.sender || hasRole(ADMIN_ROLE, msg.sender),
-            "Not authorized"
-        );
-        require(doctors[doctorAddr].isRegistered, "Doctor not registered");
-
-        delete doctors[doctorAddr];
     }
 
     function getDoctorInformation(address doctorAddr) public view returns (Doctor memory) {
@@ -148,28 +102,7 @@ contract App is AccessControl {
         require(!users[addr].isRegistered, "User already registered");
         users[addr] = User(true, nome, cpf, email);
         userAddresses.push(addr);
-        emit UserAddressAdded(addr);
         _grantRole(USER_ROLE, addr);
-    }
-
-    function removeUser(address userAddr) public {
-        require(hasRole(ADMIN_ROLE, msg.sender), "Only admin can remove a user");
-        require(users[userAddr].isRegistered, "User not registered");
-
-        delete users[userAddr];
-
-        _removeUserFromAddresses(userAddr);
-    }
-
-    function _removeUserFromAddresses(address userAddr) internal {
-        for (uint64 i = 0; i < userAddresses.length; i++) {
-            if (userAddresses[i] == userAddr) {
-                userAddresses[i] = userAddresses[userAddresses.length - 1];
-                userAddresses.pop();
-                emit UserAddressRemoved(userAddr);
-                break;
-            }
-        }
     }
 
     function getUserInformation(address userAddr) public view returns (User memory) {
@@ -179,7 +112,7 @@ contract App is AccessControl {
     event CertificateRequested(uint64 requestId);
     event CertificateGenerated(uint64 certificateId);
 
-    function requestCertificate(address doctorAddr, string memory description) public {
+    function requestCertificate(address doctorAddr) public {
         require(hasRole(USER_ROLE, msg.sender), "Caller is not a user");
         require(users[msg.sender].isRegistered, "User not registered");
         require(doctors[doctorAddr].isRegistered, "Doctor not registered");
@@ -191,7 +124,6 @@ contract App is AccessControl {
             userAddr: msg.sender,
             doctorAddr: doctorAddr,
             hospitalAddr: doctors[doctorAddr].hospital,
-            description: description,
             isApproved: false,
             isPending: true,
             blockNumber: block.number
@@ -223,7 +155,14 @@ contract App is AccessControl {
         certificateCounter++;
         certificates[id] = Certificate(id, doctor, patient, hospital, description);
 
+        certificatesByUser[request[certificateId].userAddr].push(certificates[id]);
+
         emit CertificateGenerated(id);
+    }
+
+    function getCertificate(address userAddr) public view returns(Certificate[] memory){
+        require(hasRole(USER_ROLE,userAddr) && userAddr == msg.sender, "Only users or doctors can see it, and user must be message sender");
+        return certificatesByUser[userAddr];
     }
 
     function findRequest(address docAddr) public view returns (CertificateRequest[] memory) {
@@ -231,14 +170,6 @@ contract App is AccessControl {
         require(docAddr == msg.sender);
         CertificateRequest[] storage request = requests[msg.sender];   
         return request;
-    }
-
-    function getDoctorAddresses() public view returns (address[] memory) {
-        return doctorAddresses;
-    }
-
-    function getUserAddresses() public view returns (address[] memory) {
-        return userAddresses;
     }
 
     event UserAddressAdded(address userAddr);

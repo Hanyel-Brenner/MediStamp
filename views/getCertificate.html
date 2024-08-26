@@ -3,29 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Abrir requisição - Medistamp</title>
+    <title>Procurar requisição - Medistamp</title>
     <link rel="stylesheet" href="styles1.css">
 </head>
 <body>
 
-    <h1>Cadastrar Médico</h1>
+    <h1>Procurar Requisição</h1>
 
-    <form id="request-form">
+    <form id="certificate-form">
 
-        <label for="doctorAddress">Endereco do Medico:</label>
-        <input type="text" id="doctorAddress" name="doctorAddress" required><br><br>
+        <label for="userAddress">Endereço do usuário:</label>
+        <input type="text" id="userAddress" name="userAddress" required><br><br>
 
         <button type="submit">Enviar</button>
     </form>
 
     <script src="https://cdn.jsdelivr.net/npm/web3@1.7.0/dist/web3.min.js"></script>
     <script type="module">
-        document.getElementById('request-form').addEventListener('submit', async function(event) {
+        document.getElementById('certificate-form').addEventListener('submit', async function(event) {
             event.preventDefault();
 
-            const doctorAddress = document.getElementById('doctorAddress').value;
+            const userAddr = document.getElementById('userAddress').value;
 
-            if (typeof window.ethereum !== 'undefined') {
+            if (typeof window.ethereum != 'undefined') {
                 const web3 = new Web3(window.ethereum);
                 try {
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -38,13 +38,13 @@
                     //instantiate contract
                     const contract = new web3.eth.Contract(recoveredContractAbi.abi, recoveredContractAddress.address);
 
-                    await contract.methods.requestCertificate(doctorAddress)
-                        .send({ from: account });
+                    let result = await contract.methods.getCertificate(userAddr)
+                        .call({ from: account });
+                    console.log(result);
 
-                    alert('Certificado requisitado!');
                 } catch (error) {
-                    console.error('Erro ao requisitar certificado:', error);
-                    alert('Erro ao requisitar certificado!');
+                    console.error('Erro ao procurar requisição', error);
+                    alert('Erro ao procurar requisição.');
                 }
             } else {
                 alert('MetaMask não está instalado.');

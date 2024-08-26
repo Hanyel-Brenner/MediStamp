@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Procurar requisição - Medistamp</title>
+    <link rel="stylesheet" href="styles1.css">
 </head>
 <body>
 
@@ -17,12 +18,48 @@
         <button type="submit">Enviar</button>
     </form>
 
+    <br><br><br>
+
+    <div id="result" style="display : none">
+
+        
+        <br><br><br>
+
+        <label> ID :  </label>
+        <p id="id"></p>
+        <label> Usuário :  </label>
+        <p id="user"></p>
+        <label> Médico :  </label>
+        <p id="doctor"></p>
+        <label> Hospital :  </label>
+        <p id="hospital"></p>
+        <label> Aprovada :  </label>
+        <p id = "approved"></p>
+        <label> Pendente :  </label>
+        <p id = "pending"></p>
+        <label> Bloco :  </label>
+        <p id="block"></p>
+    </div>
+
+    <div id="no-result" style="display : none">
+        <p>No results found</p>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/web3@1.7.0/dist/web3.min.js"></script>
     <script type="module">
         document.getElementById('request-form').addEventListener('submit', async function(event) {
             event.preventDefault();
 
+            const resultDiv = document.getElementById('result');
             const docAddr = document.getElementById('doctorAddress').value;
+            const id = document.getElementById('id');
+            const user = document.getElementById('user');
+            const doctor = document.getElementById('doctor');
+            const hospital = document.getElementById('hospital');
+            const approved = document.getElementById('approved');
+            const pending = document.getElementById('pending');
+            const block = document.getElementById('block');
+
 
             if (typeof window.ethereum != 'undefined') {
                 const web3 = new Web3(window.ethereum);
@@ -38,8 +75,20 @@
                     const contract = new web3.eth.Contract(recoveredContractAbi.abi, recoveredContractAddress.address);
 
                     let result = await contract.methods.findRequest(docAddr)
-                        .call({ from: account });
+                        .call({ from: account })
                     console.log(result);
+
+                    if(result){
+
+                        resultDiv.style.display = "inline";
+                        id.innerText = result[0].id;
+                        user.innerText = result[0].userAddr;
+                        doctor.innerText = result[0].doctorAddr;
+                        hospital.innerText = result[0].hospitalAddr;
+                        approved.innerText = result[0].isApproved;
+                        pending.innerText = result[0].isPending;
+                        block.innerText= result[0].blockNumber;
+                    }
 
                 } catch (error) {
                     console.error('Erro ao procurar requisição', error);

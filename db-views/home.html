@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" >
+    <link rel = 'stylesheet' href = 'home.css' type="text/css">
+    <link href='https://fonts.googleapis.com/css?family=Libre Franklin' rel='stylesheet'>
+    <meta content='width = device-width, initial-scale = 1.0' >
+</head>
+<body>
+  <!--  <h1>Welcome to Xquisidor! We are a forum about all kinds of things...Wander around and take a look!</h1><br>  -->
+    <nav>
+        <h2>POSTS</h2>
+    </nav>
+    <div id="post-list">
+        
+    </div>
+
+    <script type="module">
+        let resp = await fetch('http://localhost:3000/api/getPosts').then(response => response.json())  //this result is a json as specified in the backend
+        let element = document.getElementById('post-list')
+    
+        for(let i=0; i<10 && Object.keys(resp).length; i++) //imprime quantos 
+        {
+            //create elements for each of the parts of the post 
+            let postContainer = document.createElement('div'); //contais a singular post container
+            let title = document.createElement('div');
+            let author = document.createElement('div');
+            let date = document.createElement('div');
+            let content = document.createElement('div');
+            let optionsField = document.createElement('div');
+            let commentLink = document.createElement('a');
+            //set classes respective to each so we can reference them all at once in the .css file
+            postContainer.classList.add('post-container')
+            title.classList.add('title');
+            author.classList.add('author');
+            date.classList.add('date');
+            content.classList.add('content');
+            optionsField.classList.add('options-field');
+            commentLink.classList.add('comment-link');
+
+            title.textContent = resp[i].title;
+            author.textContent = "Author : " + resp[i].authorId;
+            date.textContent = "Date : " + resp[i].date;
+            content.textContent = resp[i].content;
+
+            postContainer.appendChild(title);
+            postContainer.appendChild(author);
+            postContainer.appendChild(content);
+            postContainer.appendChild(date);
+            commentLink.innerHTML = "<a href = ./comments?postId="+resp[i].id +">Comments</>";
+            optionsField.appendChild(commentLink);
+            postContainer.appendChild(optionsField);  
+
+            element.appendChild(postContainer); //finally append all post elements into the post list in home page.
+        }
+    </script> 
+</body>
+</html>

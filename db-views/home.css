@@ -1,0 +1,55 @@
+*{
+    padding: 0;
+    margin:0;
+    text-decoration:none;
+    list-style:none;
+    box-sizing:border-box;
+}
+
+h2{
+    color: #FDEE00;
+    line-height:80px;
+    margin-left: 20px;
+}
+
+body{
+    background-color: #E0FFFF;
+    font-family:montserrat;
+}
+
+nav{
+    background-color: #020849;
+    height:80px;
+    width:100%;
+}
+
+.post-container{
+    margin  : 10px;
+    border: 1px solid #020849;
+    color: black;
+}
+
+.title{
+    margin-top: 5px;
+    font-size: 24px;
+    margin-left:5px;
+}
+
+.author{
+    margin-top: 5px;
+    font-family : "Libre Franklin";
+    font-size : 12px;
+    padding:5px;
+}
+
+.date{
+    font-family : "Libre Franklin";
+    font-size : 12px;
+    padding:5px;    
+}
+
+.content
+{
+    padding:5px;
+    border: 1px solid black;
+}

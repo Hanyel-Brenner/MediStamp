@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel = 'stylesheet' href = 'comments.css' type="text/css">
+    <link href='https://fonts.googleapis.com/css?family=Libre Franklin' rel='stylesheet'>
+    <meta content='width = device-width, initial-scale = 1.0' >
+</head>
+<body>
+  <!--  <h1>Welcome to Xquisidor! We are a forum about all kinds of things...Wander around and take a look!</h1><br>  -->
+  <nav>
+    <h2>COMMENTS</h2>
+</nav>
+
+    <div id="post">
+        
+    </div>
+
+    <div id="comments-list">
+        
+    </div>
+
+    <script type="module">
+        let params = new URLSearchParams(window.location.search);
+        let postId = params.get('postId');
+        //this is the comment list of the post with id equal to postId
+        let resp = await fetch('http://localhost:3000/api/getComments/'+postId).then(response => response.json());  //this result is a json as specified in the backend
+        //this is the post information
+        //let post = await fetch('http://localhost:3000/api/getPosts/'+postId).then(response => response.json());
+        let element = document.getElementById('comments-list');
+        
+
+        for(let i=0; i<Object.keys(resp).length; i++)
+        {
+            let commentContainer = document.createElement('div');
+            let author = document.createElement('div');
+            let content = document.createElement('div');
+            let date = document.createElement('div');
+
+            commentContainer.classList.add('comment-container');
+            author.classList.add('author');
+            content.classList.add('content');
+            date.classList.add('date');
+
+            author.textContent = "Author : "+ resp[i].authorId;
+            content.textContent = resp[i].content;
+            date.textContent = "Date : "+resp[i].date;
+        
+            commentContainer.appendChild(author);
+            commentContainer.appendChild(content);
+            commentContainer.appendChild(date);
+            
+            element.appendChild(commentContainer);
+        }
+    </script> 
+</body>
+</html>
